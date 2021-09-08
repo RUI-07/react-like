@@ -941,6 +941,11 @@
     "@types/prop-types" "*"
     csstype "^3.0.2"
 
+"@types/requestidlecallback@^0.3.4":
+  version "0.3.4"
+  resolved "http://npm-registry.duowan.com/@types/requestidlecallback/download/@types/requestidlecallback-0.3.4.tgz#819e22b8994cf547e1f17f9cb79805a5a3bb1db5"
+  integrity sha1-gZ4iuJlM9Ufh8X+ct5gFpaO7HbU=
+
 "@types/scheduler@*":
   version "0.16.2"
   resolved "http://npm-registry.duowan.com/@types/scheduler/download/@types/scheduler-0.16.2.tgz#1a62f89525723dde24ba1b01b092bf5df8ad4d39"
