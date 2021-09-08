@@ -3,7 +3,7 @@ import { render } from "./react-like";
 /** @jsxImportSource ./react-like */
 const App = (
   <div>
-    <h1>Hello world!</h1>
+    <h1 style={{color: 'red', marginBottom: '10px'}}>Hello world!</h1>
     <ul>
       <li>a</li>
       <li>b</li>
@@ -18,4 +18,5 @@ const App = (
 );
 
 console.log("App", App);
+// @ts-ignore
 render(App, document.getElementById("root"));
