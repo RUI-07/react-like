@@ -1,9 +1,15 @@
 import { render } from "./react-like";
 
+const Title = (props: any) => (
+  <h1 {...props} style={{ color: "red", marginBottom: "10px" }}>
+    {props.children}
+  </h1>
+);
+
 /** @jsxImportSource ./react-like */
-const App = (
+const App = () => (
   <div>
-    <h1 style={{color: 'red', marginBottom: '10px'}}>Hello world!</h1>
+    <Title className="title">Hello world!</Title>
     <ul>
       <li>a</li>
       <li>b</li>
@@ -19,4 +25,4 @@ const App = (
 
 console.log("App", App);
 // @ts-ignore
-render(App, document.getElementById("root"));
+render(<App />, document.getElementById("root"));

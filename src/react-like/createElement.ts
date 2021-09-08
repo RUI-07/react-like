@@ -1,7 +1,7 @@
-import { Element } from "./types";
+import { Element, FunctionComponent } from "./types";
 
 export function createElement(
-  tag: keyof HTMLElementTagNameMap,
+  type: keyof HTMLElementTagNameMap| FunctionComponent,
   props: Record<any, any>
 ): Element {
   const children = props.children
@@ -11,7 +11,7 @@ export function createElement(
     : [];
   delete props.children;
   return {
-    tag,
+    type: type,
     props,
     children
   };
