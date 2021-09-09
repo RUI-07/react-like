@@ -1,18 +1,9 @@
-import {workLoopStart} from "./schedule";
-import {
-  Renderable,
-  Element,
-  PRIMITIVE_TYPE,
-  PrimitiveElement,
-  FunctionComponentElement,
-  FirberNode,
-} from "./types";
-import { hyphenate } from "./util";
+import { workLoopStart } from "./schedule";
+import { Element, FiberNode } from "./types";
 
 export function render(element: Element, container: HTMLElement) {
-  // console.log("element", element);
-  const firberRoot = new FirberNode({ element });
-  
-  workLoopStart(firberRoot)
-}
+  console.log("container", container);
+  const fiberRoot = new FiberNode({ element });
 
+  workLoopStart(fiberRoot, container);
+}

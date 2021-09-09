@@ -1,4 +1,4 @@
-import { Element, PRIMITIVE_TYPE, PrimitiveElement, FirberNode } from "./types";
+import { Element, PRIMITIVE_TYPE, PrimitiveElement } from "./types";
 import { hyphenate } from "./util";
 
 function setStyle(style: Record<string, string>, node: HTMLElement) {
@@ -20,7 +20,7 @@ function processProps(props: Element, node: HTMLElement) {
   }
 }
 
-// 根据Element类型生成对应的HTMLDOMNode 
+// 根据Element类型生成对应的HTMLDOMNode
 export function createDOM(element: Element): Node {
   // console.log("element", element);
   const { type } = element;

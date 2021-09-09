@@ -36,19 +36,19 @@ export type PrimitiveElement = Element<
   { value: string }
 >;
 
-export class FirberNode {
+export class FiberNode {
   element: Element;
   dom: Node | null = null;
-  sibling: FirberNode | null = null;
-  parent: FirberNode | null = null;
-  child: FirberNode | null = null;
+  sibling: FiberNode | null = null;
+  parent: FiberNode | null = null;
+  child: FiberNode | null = null;
 
   constructor(params: {
     element: Element;
-    dom?: Node;
-    sibling?: FirberNode;
-    parent?: FirberNode;
-    child?: FirberNode;
+    dom?: HTMLElement;
+    sibling?: FiberNode;
+    parent?: FiberNode;
+    child?: FiberNode;
   }) {
     const { element, dom, sibling, parent, child } = params;
     this.element = params.element;

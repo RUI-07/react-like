@@ -1,33 +1,41 @@
-import { FirberNode } from "./types";
+import { FiberNode } from "./types";
 import { createDOM } from "./createDOM";
 
-function pickNextFirber(firber: FirberNode) {
-  return firber.child || firber.sibling || firber.parent || null;
+let root: FiberNode | undefined = undefined;
+let container: HTMLElement | undefined = undefined;
+
+function pickNextFiber(fiber: FiberNode) {
+  if (fiber.child) return fiber.child;
+  let current: FiberNode | null = fiber;
+  while (current) {
+    if (current.sibling) {
+      return current.sibling;
+    }
+    current = current.parent;
+  }
+  return current;
 }
 
-let nextUnitOfWork: FirberNode | null = null;
+let nextUnitOfWork: FiberNode | null = null;
 
-function performUnitOfWork(firber: FirberNode): FirberNode | null {
-  if (!firber.dom) {
-    firber.dom = createDOM(firber.element);
-  }
-  if (firber.parent?.dom) {
-    firber.parent.dom.appendChild(firber.dom);
+function performUnitOfWork(fiber: FiberNode): FiberNode | null {
+  if (!fiber.dom) {
+    fiber.dom = createDOM(fiber.element);
   }
 
-  const childElements = firber.element.children;
-  let childFirbers: FirberNode[] = [];
-  let preChildFirber: FirberNode | undefined = undefined;
+  const childElements = fiber.element.children;
+  let childFirbers: FiberNode[] = [];
+  let preChildFirber: FiberNode | undefined = undefined;
   for (let i = 0; i < childElements.length; i++) {
     const element = childElements[i];
-    const newFirber = new FirberNode({ element });
+    const newFirber = new FiberNode({ element, parent: fiber });
     preChildFirber && (preChildFirber.sibling = newFirber);
     preChildFirber = newFirber;
     childFirbers.push(newFirber);
   }
-  firber.child = childFirbers[0];
+  fiber.child = childFirbers[0];
 
-  return pickNextFirber(firber);
+  return pickNextFiber(fiber);
 }
 
 function workLoop(deadline: IdleDeadline) {
@@ -35,14 +43,35 @@ function workLoop(deadline: IdleDeadline) {
   while (nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
     shouldYield = deadline.timeRemaining() < 1;
+
+    if (!nextUnitOfWork) {
+      console.log("commit root", root);
+      commitFirberTree(root, container);
+    }
   }
 
   requestIdleCallback(workLoop);
 }
 
-export function workLoopStart(firberRoot: FirberNode) {
-  nextUnitOfWork = firberRoot;
+export function workLoopStart(
+  fiberRoot: FiberNode,
+  rootContainer: HTMLElement
+) {
+  root = fiberRoot;
+  container = rootContainer;
+  nextUnitOfWork = fiberRoot;
   requestIdleCallback(workLoop);
 }
 
+export function commitFirberTree(fiberRoot?: FiberNode, container?: Node) {
+  if (!fiberRoot || !container || !fiberRoot.dom) return;
+  (container as HTMLElement).append(fiberRoot.dom);
 
+  if (fiberRoot.child) {
+    commitFirberTree(fiberRoot.child, fiberRoot.dom);
+  }
+
+  if (fiberRoot.sibling) {
+    commitFirberTree(fiberRoot.sibling, container);
+  }
+}
