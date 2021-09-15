@@ -1,4 +1,4 @@
-import { FiberNode } from "./types";
+import { FiberNode, FiberRoot } from "./types";
 import { createDOM } from "./createDOM";
 
 let root: FiberNode | undefined = undefined;
@@ -63,15 +63,32 @@ export function workLoopStart(
   requestIdleCallback(workLoop);
 }
 
-export function commitFirberTree(fiberRoot?: FiberNode, container?: Node) {
-  if (!fiberRoot || !container || !fiberRoot.dom) return;
-  (container as HTMLElement).append(fiberRoot.dom);
-
-  if (fiberRoot.child) {
-    commitFirberTree(fiberRoot.child, fiberRoot.dom);
+function* createfiberTreeInterator(fiberRoot: FiberNode) {
+  let current = fiberRoot;
+  while (current) {
+    yield current;
+    const next = pickNextFiber(current);
+    if (next) {
+      current = next;
+    } else {
+      break;
+    }
   }
+  return;
+}
 
-  if (fiberRoot.sibling) {
-    commitFirberTree(fiberRoot.sibling, container);
+export function commitFirberTree(
+  fiberRoot?: FiberNode,
+  container: Node | null = null
+) {
+  if (!fiberRoot || !container) return;
+  const fiberInterator = createfiberTreeInterator(fiberRoot);
+
+  for (const fiber of fiberInterator) {
+    const parentDOM =
+      fiber instanceof FiberRoot ? container : fiber.parent?.dom;
+    if (parentDOM && fiber.dom) {
+      (parentDOM as HTMLElement).append(fiber.dom);
+    }
   }
 }

@@ -58,3 +58,5 @@ export class FiberNode {
     child && (this.child = child);
   }
 }
+
+export class FiberRoot extends FiberNode {}
