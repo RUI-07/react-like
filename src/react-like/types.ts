@@ -35,6 +35,11 @@ export type PrimitiveElement = Element<
   typeof PRIMITIVE_TYPE,
   { value: string }
 >;
+export enum EffectTag {
+  UPDATE,
+  REMOVE,
+  REUSE,
+}
 
 export class FiberNode {
   element: Element;
@@ -42,16 +47,20 @@ export class FiberNode {
   sibling: FiberNode | null = null;
   parent: FiberNode | null = null;
   child: FiberNode | null = null;
+  alternate: FiberNode | null;
+  effectTag?: EffectTag;
 
   constructor(params: {
     element: Element;
-    dom?: HTMLElement;
+    alternate: FiberNode | null;
+    dom?: Node;
     sibling?: FiberNode;
     parent?: FiberNode;
     child?: FiberNode;
   }) {
-    const { element, dom, sibling, parent, child } = params;
-    this.element = params.element;
+    const { element, dom, sibling, parent, child, alternate } = params;
+    this.element = element;
+    this.alternate = alternate;
     dom && (this.dom = dom);
     sibling && (this.sibling = sibling);
     parent && (this.parent = parent);

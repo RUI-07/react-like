@@ -23,7 +23,7 @@ const App = () => (
   </div>
 );
 
-const Content = (
+let Content = (
   <div>
     <h1 style={{ color: "red", marginBottom: "10px" }}>Hello world!</h1>
     <ul>
@@ -38,6 +38,30 @@ const Content = (
     </div>
   </div>
 );
+
+const countRef = {value: 0}
+setInterval(() => {
+  console.log("change");
+  Content = (
+    <div>
+      <h1 style={{ color: "red", marginBottom: "10px" }}>Hello world!</h1>
+      <ul>
+        <li>a</li>
+        <li>b</li>
+        <li>c</li>
+      </ul>
+      <h2>test</h2>
+      <div className="App">
+        <h1>Hello CodeSandbox</h1>
+        <h2 style={{color: 'blueviolet'}}>Changed!</h2>
+        <div>count: {countRef.value++}</div>
+      </div>
+    </div>
+  );
+
+  // @ts-ignore
+  render(Content, document.getElementById("root"));
+}, 1000);
 
 console.log("App", Content);
 // @ts-ignore

@@ -1,27 +1,80 @@
-import { FiberNode, FiberRoot } from "./types";
-import { createDOM } from "./createDOM";
-import {pickNextFiber} from './fiberInterator'
-import {commitFirberTree} from './commitFirberTree'
-
+import {
+  EffectTag,
+  FiberNode,
+  PRIMITIVE_TYPE,
+} from "./types";
+import { createDOM, updateProps } from "./createDOM";
+import { pickNextFiber, createFiberChildrenInterator } from "./fiberInterator";
+import { commitFirberTree } from "./commitFirberTree";
+import { shallowEqual } from "./util";
 
 let root: FiberNode | undefined = undefined;
 let container: HTMLElement | undefined = undefined;
 
 let nextUnitOfWork: FiberNode | null = null;
 
+function commitEffect(fiber: FiberNode) {
+  const element = fiber.element;
+  const oldDOM = fiber.alternate?.dom || null;
+  const oldProps = fiber.alternate?.element.props || {};
+  if (!oldDOM) return createDOM(element);
+
+  const effectTag = fiber.effectTag;
+
+  switch (effectTag) {
+    case EffectTag.REUSE:
+      return oldDOM;
+    case EffectTag.UPDATE:
+      updateProps(oldProps, element.props, oldDOM as HTMLElement);
+      return oldDOM;
+    case EffectTag.REMOVE:
+      oldDOM.parentNode?.removeChild(oldDOM);
+      return createDOM(fiber.element);
+    default:
+      return createDOM(fiber.element);
+  }
+}
+
+function setEffectTag(fiber: FiberNode) {
+  const oldFiber = fiber.alternate;
+  if (!oldFiber) {
+    return;
+  }
+
+  const oldElement = oldFiber.element;
+  const element = fiber.element;
+  let effectTag: EffectTag | undefined = undefined;
+  if (oldElement.type !== element.type) {
+    effectTag = EffectTag.REMOVE;
+  } else if (shallowEqual(oldElement.props, element.props)) {
+    effectTag = EffectTag.REUSE;
+  } else {
+    effectTag =
+      element.type !== PRIMITIVE_TYPE ? EffectTag.UPDATE : EffectTag.REMOVE;
+  }
+
+  fiber.effectTag = effectTag;
+}
+
 function performUnitOfWork(fiber: FiberNode): FiberNode | null {
   if (!fiber.dom) {
-    fiber.dom = createDOM(fiber.element);
+    setEffectTag(fiber);
+    fiber.dom = commitEffect(fiber);
   }
 
   const childElements = fiber.element.children;
+  const oldFiberChildren = createFiberChildrenInterator(fiber.alternate?.child);
+
   let childFirbers: FiberNode[] = [];
-  let preChildFirber: FiberNode | undefined = undefined;
-  for (let i = 0; i < childElements.length; i++) {
-    const element = childElements[i];
-    const newFirber = new FiberNode({ element, parent: fiber });
-    preChildFirber && (preChildFirber.sibling = newFirber);
-    preChildFirber = newFirber;
+  let current: FiberNode | undefined = undefined;
+  for (const element of childElements) {
+    const newFirber = new FiberNode({
+      element,
+      parent: fiber,
+      alternate: oldFiberChildren.next().value,
+    });
+    current && (current.sibling = newFirber);
+    current = newFirber;
     childFirbers.push(newFirber);
   }
   fiber.child = childFirbers[0];

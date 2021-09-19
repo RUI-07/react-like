@@ -25,3 +25,14 @@ export function* createfiberTreeInterator(fiberRoot: FiberNode) {
   }
   return;
 }
+
+export function* createFiberChildrenInterator(firstChild?: FiberNode | null) {
+  let current = firstChild;
+  while (current) {
+    yield current;
+    current = current.sibling;
+  }
+  return null
+}
+
+

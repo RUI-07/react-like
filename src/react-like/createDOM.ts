@@ -8,21 +8,32 @@ function setStyle(style: Record<string, string>, node: HTMLElement) {
   });
 }
 
-function processProps(props: Element, node: HTMLElement) {
-  for (const key in props.props) {
+function processProps(props: Record<any, any>, node: HTMLElement) {
+  for (const key in props) {
     switch (key) {
       case "style":
-        setStyle(props.props["style"], node);
+        setStyle(props["style"], node);
         break;
       default:
-        node.setAttribute(key, props.props[key]);
+        node.setAttribute(key, props[key]);
     }
   }
 }
 
+export function updateProps(
+  oldProps: Record<any, any>,
+  props: Record<any, any>,
+  node: HTMLElement
+) {
+  for (const key in oldProps) {
+    node.removeAttribute(key);
+  }
+  processProps(props, node);
+}
+
 // 根据Element类型生成对应的HTMLDOMNode
 export function createDOM(element: Element): Node {
-  // console.log("element", element);
+  console.log("element", element);
   const { type } = element;
   if (typeof type === "function") {
     return document.createTextNode("");
@@ -33,7 +44,7 @@ export function createDOM(element: Element): Node {
     return textNode;
   } else {
     const node = document.createElement(type);
-    processProps(element, node);
+    processProps(element.props, node);
     return node;
   }
 }
