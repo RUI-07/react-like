@@ -39,11 +39,17 @@ let Content = (
   </div>
 );
 
-const countRef = {value: 0}
+const countRef = { value: 0 };
+let clickHandler = [
+  () => console.log("1"),
+  () => console.log("2"),
+  () => console.log("3"),
+];
 setInterval(() => {
   console.log("change");
   Content = (
     <div>
+      <button onClick={clickHandler[countRef.value % 3]}>Click!</button>
       <h1 style={{ color: "red", marginBottom: "10px" }}>Hello world!</h1>
       <ul>
         <li>a</li>
@@ -53,7 +59,7 @@ setInterval(() => {
       <h2>test</h2>
       <div className="App">
         <h1>Hello CodeSandbox</h1>
-        <h2 style={{color: 'blueviolet'}}>Changed!</h2>
+        <h2 style={{ color: "blueviolet" }}>Changed!</h2>
         <div>count: {countRef.value++}</div>
       </div>
     </div>
