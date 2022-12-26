@@ -52,7 +52,7 @@ export class FiberNode {
 
   constructor(params: {
     element: Element;
-    alternate: FiberNode | null;
+    alternate: FiberNode | null; // 与当前节点对应的上一次render的节点
     dom?: Node;
     sibling?: FiberNode;
     parent?: FiberNode;

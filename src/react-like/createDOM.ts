@@ -43,11 +43,12 @@ export function updateProps(
   processProps(props, node);
 }
 
-// 根据Element类型生成对应的HTMLDOMNode
+// 根据Element类型生成对应的HTML DOM Node
 export function createDOM(element: Element): Node {
   console.log("element", element);
   const { type } = element;
   if (typeof type === "function") {
+    // @TODO 支持Function component
     return document.createTextNode("");
   } else if (type === PRIMITIVE_TYPE) {
     const textNode = document.createTextNode(

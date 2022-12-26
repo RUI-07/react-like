@@ -9,6 +9,7 @@ let container: HTMLElement | undefined = undefined;
 let nextUnitOfWork: FiberNode | null = null;
 
 function performUnitOfWork(fiber: FiberNode): FiberNode | null {
+  // 更新FiberNode对应的真实DOM
   if (!fiber.dom) {
     setEffectTag(fiber);
     fiber.dom = commitEffect(fiber);
@@ -19,12 +20,14 @@ function performUnitOfWork(fiber: FiberNode): FiberNode | null {
 
   let childFirbers: FiberNode[] = [];
   let current: FiberNode | undefined = undefined;
+  // 根据子虚拟DOM节点创建子Fiber节点
   for (const element of childElements) {
     const newFirber = new FiberNode({
       element,
       parent: fiber,
       alternate: oldFiberChildren.next().value || null,
     });
+    // 兄弟节点之间通过sibling字段相连
     current && (current.sibling = newFirber);
     current = newFirber;
     childFirbers.push(newFirber);
@@ -38,10 +41,14 @@ function workLoop(deadline: IdleDeadline) {
   let shouldYield = false;
   while (nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+    // 通过requestIdleCallback回调参数deatline得知离下一次浏览器渲染还有多久
+    // 判断是否应该中断workLoop
     shouldYield = deadline.timeRemaining() < 1;
 
+    // 没有下一个需要处理的Fiber节点
     if (!nextUnitOfWork) {
       console.log("commit root", root);
+      // 渲染DOM
       commitFirberTree(root, container);
     }
   }
@@ -56,5 +63,6 @@ export function workLoopStart(
   root = fiberRoot;
   container = rootContainer;
   nextUnitOfWork = fiberRoot;
+  // 开始执行
   requestIdleCallback(workLoop);
 }

@@ -1,5 +1,6 @@
 import { FiberNode } from "./types";
 
+// 挑选下一个需要处理的Fiber节点优先级 child > sibling > parent.sibling
 export function pickNextFiber(fiber: FiberNode) {
   if (fiber.child) return fiber.child;
   let current: FiberNode | null = fiber;

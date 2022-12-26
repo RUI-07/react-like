@@ -1,6 +1,7 @@
 import { FiberNode, FiberRoot } from "./types";
 import {createfiberTreeInterator} from './fiberInterator'
 
+// 将fiber tree上的DOM对象挂载到页面DOM tree上
 export function commitFirberTree(
   fiberRoot?: FiberNode,
   container: HTMLElement | null = null
