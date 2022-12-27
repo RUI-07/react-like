@@ -11,9 +11,9 @@ export type ElementType =
 export class Element<T = ElementType, P = Record<any, any>> {
   type: T;
   props: P;
-  children: Element[];
+  children?: Element[];
 
-  constructor(params: { type: T; props: P; children: Element[] }) {
+  constructor(params: { type: T; props: P; children?: Element[] }) {
     this.type = params.type;
     this.children = params.children;
     this.props = params.props;
