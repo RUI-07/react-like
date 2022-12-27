@@ -1,6 +1,6 @@
 import { FiberNode } from "./types";
 import { pickNextFiber, createFiberChildrenInterator } from "./fiberInterator";
-import { commitFirberTree } from "./commitFirberTree";
+import { commitFiberTree } from "./commitFirberTree";
 import { commitEffect, setEffectTag } from "./elementEffect";
 
 let root: FiberNode | undefined = undefined;
@@ -55,7 +55,7 @@ function workLoop(deadline: IdleDeadline) {
     if (!nextUnitOfWork) {
       console.log("commit root", root);
       // 渲染DOM
-      commitFirberTree(root, container);
+      commitFiberTree(root, container);
     }
   }
 

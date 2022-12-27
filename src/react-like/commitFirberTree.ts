@@ -15,7 +15,7 @@ function getParentDOM(fiber: FiberNode, container: HTMLElement | null) {
 }
 
 // 将fiber tree上的DOM对象挂载到页面DOM tree上
-export function commitFirberTree(
+export function commitFiberTree(
   fiberRoot?: FiberNode,
   container: HTMLElement | null = null
 ) {
