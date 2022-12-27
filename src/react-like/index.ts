@@ -4,8 +4,6 @@ import { Element, FiberNode, FiberRoot } from "./types";
 const CURRENT_SYM = "CONTAINER_SYM";
 
 export function render(element: Element, container: HTMLElement) {
-  console.log("container", container);
-
   // @ts-ignore
   const current: FiberRoot | undefined = container[CURRENT_SYM];
   !current && (container.innerHTML = "");

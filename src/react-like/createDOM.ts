@@ -45,7 +45,6 @@ export function updateProps(
 
 // 根据Element类型生成对应的HTML DOM Node
 export function createDOM(element: Element): Node {
-  console.log("element", element);
   const { type } = element;
   if (typeof type === "function") {
     // @TODO 支持Function component

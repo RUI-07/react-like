@@ -8,15 +8,20 @@ let container: HTMLElement | undefined = undefined;
 
 let nextUnitOfWork: FiberNode | null = null;
 
+function elementIsComponent(fiber: FiberNode) {
+  return typeof fiber.element.type === "function";
+}
+
 function performUnitOfWork(fiber: FiberNode): FiberNode | null {
-  console.log('fiber', fiber.element.type)
   // 更新FiberNode对应的真实DOM
-  if (!fiber.dom) {
+  if (!elementIsComponent(fiber) && !fiber.dom) {
     setEffectTag(fiber);
     fiber.dom = commitEffect(fiber);
   }
 
-  const childElements = fiber.element.children || [];
+  const children = fiber.element.children;
+  const childElements =
+    (typeof children === "function" ? children() : children) || [];
   const oldFiberChildren = createFiberChildrenInterator(fiber.alternate?.child);
 
   let childFirbers: FiberNode[] = [];
