@@ -1,4 +1,4 @@
-import { FiberNode } from "./types";
+import { FiberNode, Element as FiberElement, FunctionComponent } from "./types";
 import { pickNextFiber, createFiberChildrenInterator } from "./fiberInterator";
 import { commitFiberTree } from "./commitFirberTree";
 import { commitEffect, setEffectTag } from "./elementEffect";
@@ -8,20 +8,41 @@ let container: HTMLElement | undefined = undefined;
 
 let nextUnitOfWork: FiberNode | null = null;
 
-function elementIsComponent(fiber: FiberNode) {
+function isFunctionComponent(
+  fiber: FiberNode
+): fiber is FiberNode<FiberElement<FunctionComponent>> {
   return typeof fiber.element.type === "function";
 }
 
-function performUnitOfWork(fiber: FiberNode): FiberNode | null {
-  // 更新FiberNode对应的真实DOM
-  if (!elementIsComponent(fiber) && !fiber.dom) {
+function updateFunctionComponent(
+  fiber: FiberNode<FiberElement<FunctionComponent>>
+) {
+  const element = fiber.element;
+  const component = element.type;
+  const children = [
+    component({ ...element.props, children: element.children }),
+  ];
+
+  reconcileChildren(fiber, children);
+  return fiber;
+}
+
+// 更新FiberNode对应的真实DOM
+function updateHostComponent(fiber: FiberNode) {
+  if (!fiber.dom) {
     setEffectTag(fiber);
     fiber.dom = commitEffect(fiber);
   }
+  const children = fiber.element.children || [];
 
-  const children = fiber.element.children;
-  const childElements =
-    (typeof children === "function" ? children() : children) || [];
+  reconcileChildren(fiber, children);
+  return fiber;
+}
+
+function reconcileChildren(
+  fiber: FiberNode,
+  childElements: FiberNode["element"][]
+) {
   const oldFiberChildren = createFiberChildrenInterator(fiber.alternate?.child);
 
   let childFirbers: FiberNode[] = [];
@@ -39,6 +60,14 @@ function performUnitOfWork(fiber: FiberNode): FiberNode | null {
     childFirbers.push(newFirber);
   }
   fiber.child = childFirbers[0];
+}
+
+function performUnitOfWork(fiber: FiberNode): FiberNode | null {
+  if (isFunctionComponent(fiber)) {
+    updateFunctionComponent(fiber);
+  } else {
+    updateHostComponent(fiber);
+  }
 
   return pickNextFiber(fiber);
 }

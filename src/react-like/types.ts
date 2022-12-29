@@ -11,7 +11,7 @@ export type ElementType =
 export class Element<T = ElementType, P = Record<any, any>> {
   type: T;
   props: P;
-  children?: Element[] | (() => Element[]);
+  children?: Element[];
 
   constructor(params: { type: T; props: P; children?: Element['children'] }) {
     this.type = params.type;
@@ -41,22 +41,22 @@ export enum EffectTag {
   REUSE,
 }
 
-export class FiberNode {
-  element: Element;
+export class FiberNode<T = Element> {
+  element: T;
   dom: Node | null = null;
-  sibling: FiberNode | null = null;
-  parent: FiberNode | null = null;
-  child: FiberNode | null = null;
-  alternate: FiberNode | null;
+  sibling: FiberNode<T> | null = null;
+  parent: FiberNode<T> | null = null;
+  child: FiberNode<T> | null = null;
+  alternate: FiberNode<T> | null;
   effectTag?: EffectTag;
 
   constructor(params: {
-    element: Element;
-    alternate: FiberNode | null; // 与当前节点对应的上一次render的节点
+    element: T;
+    alternate: FiberNode<T> | null; // 与当前节点对应的上一次render的节点
     dom?: Node;
-    sibling?: FiberNode;
-    parent?: FiberNode;
-    child?: FiberNode;
+    sibling?: FiberNode<T>;
+    parent?: FiberNode<T>;
+    child?: FiberNode<T>;
   }) {
     const { element, dom, sibling, parent, child, alternate } = params;
     this.element = element;
