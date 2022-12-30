@@ -47,8 +47,7 @@ export function updateProps(
 export function createDOM(element: Element): Node {
   const { type } = element;
   if (typeof type === "function") {
-    // @TODO 支持Function component
-    return document.createTextNode("");
+    throw new Error('Can not create DOM for function component')
   } else if (type === PRIMITIVE_TYPE) {
     const textNode = document.createTextNode(
       (element as PrimitiveElement).props.value

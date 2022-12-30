@@ -1,20 +1,8 @@
-import { FiberNode, FiberRoot } from "./types";
+import { FiberNode, isFunctionComponent } from "./types";
 import { createfiberTreeInterator } from "./fiberInterator";
+import { commitEffect } from "./elementEffect";
 
-function getParentDOM(fiber: FiberNode, container: HTMLElement | null) {
-  if (fiber instanceof FiberRoot) {
-    return container;
-  } else {
-    let current = fiber.parent;
-    while (current) {
-      if (current.dom) return current.dom;
-      current = current.parent;
-    }
-    return container;
-  }
-}
-
-// 将fiber tree上的DOM对象挂载到页面DOM tree上
+// 执行每个fiberNode对应的DOM处理
 export function commitFiberTree(
   fiberRoot?: FiberNode,
   container: HTMLElement | null = null
@@ -23,9 +11,21 @@ export function commitFiberTree(
   const fiberInterator = createfiberTreeInterator(fiberRoot);
 
   for (const fiber of fiberInterator) {
-    const parentDOM = getParentDOM(fiber, container);
-    if (parentDOM && fiber.dom) {
-      (parentDOM as HTMLElement).append(fiber.dom);
+    // 函数组件对应节点没有DOM不需要处理
+    if (isFunctionComponent(fiber)) continue;
+    fiber.dom = commitEffect(fiber);
+  }
+}
+
+// 挂载DOM树到容器
+export function mountDOM(fiberRoot: FiberNode, container: HTMLElement) {
+  container.innerHTML = "";
+  const fiberInterator = createfiberTreeInterator(fiberRoot);
+  // 由上自下找到第一个DOM挂载到container中
+  for (const fiber of fiberInterator) {
+    if (fiber.dom) {
+      container.append(fiber.dom);
+      return
     }
   }
 }

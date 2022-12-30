@@ -8,12 +8,18 @@ export type ElementType =
   | FunctionComponent
   | typeof PRIMITIVE_TYPE;
 
+export interface StateHook<T = any> {
+  state: T;
+  setState: (setter: (state: T) => void) => void;
+}
+
 export class Element<T = ElementType, P = Record<any, any>> {
   type: T;
   props: P;
   children?: Element[];
+  hooks?: StateHook[];
 
-  constructor(params: { type: T; props: P; children?: Element['children'] }) {
+  constructor(params: { type: T; props: P; children?: Element["children"] }) {
     this.type = params.type;
     this.children = params.children;
     this.props = params.props;
@@ -37,8 +43,9 @@ export type PrimitiveElement = Element<
 >;
 export enum EffectTag {
   UPDATE,
-  REMOVE,
   REUSE,
+  REPLACE,
+  APPEND,
 }
 
 export class FiberNode<T = Element> {
@@ -69,3 +76,11 @@ export class FiberNode<T = Element> {
 }
 
 export class FiberRoot extends FiberNode {}
+
+export function isFunctionComponent(
+  fiber: FiberNode
+): fiber is FiberNode<Element<FunctionComponent>> {
+  return typeof fiber.element.type === "function";
+}
+
+export const CURRENT_SYM = Symbol("CONTAINER_SYM");

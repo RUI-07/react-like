@@ -1,4 +1,5 @@
 import { render } from "./react-like";
+import { useState } from "./react-like/hooks";
 
 /** @jsxImportSource ./react-like */
 
@@ -14,22 +15,32 @@ const Content = (
   </div>
 );
 
-const App = () => (
-  <div>
-    <Title className="title">Hello world!</Title>
-    <ul>
-      <li>a</li>
-      <li>b</li>
-      <li>c</li>
-    </ul>
-    <h2>test</h2>
-    <div className="App">
-      <h1>Hello CodeSandbox</h1>
-      <h2>Start editing to see some magic happen!</h2>
+const App = () => {
+  const [count, setCount] = useState(10);
+
+  console.log("count", count);
+  return (
+    <div onClick={() => setCount((v) => v + 1)}>
+      {
+        // <Title className="title">Hello world!</Title>
+        // <ul>
+        //   <li>a</li>
+        //   <li>b</li>
+        //   <li>c</li>
+        // </ul>
+      }
+      <h2>{count}</h2>
+      {
+
+      // <div className="App">
+      //   <h1>Hello CodeSandbox</h1>
+      //   <h2>Start editing to see some magic happen!</h2>
+      // </div>
+      // {Content}
+      }
     </div>
-    {Content}
-  </div>
-);
+  );
+};
 
 render(<App />, document.getElementById("root") as HTMLElement);
 
