@@ -75,7 +75,21 @@ export class FiberNode<T = Element> {
   }
 }
 
-export class FiberRoot extends FiberNode {}
+export class FiberRoot<T = Element> extends FiberNode<T> {
+  container: HTMLElement;
+  constructor(params: {
+    element: T;
+    alternate: FiberNode<T> | null; // 与当前节点对应的上一次render的节点
+    container: HTMLElement;
+    dom?: Node;
+    sibling?: FiberNode<T>;
+    parent?: FiberNode<T>;
+    child?: FiberNode<T>;
+  }) {
+    super(params);
+    this.container = params.container;
+  }
+}
 
 export function isFunctionComponent(
   fiber: FiberNode

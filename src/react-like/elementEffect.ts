@@ -1,10 +1,13 @@
-import { EffectTag, FiberNode, PRIMITIVE_TYPE } from "./types";
+import { EffectTag, FiberNode, FiberRoot, PRIMITIVE_TYPE } from "./types";
 import { createDOM, updateProps } from "./createDOM";
 import { shallowEqual } from "./util";
 
 function getParentDOM(fiber: FiberNode) {
   let current = fiber.parent;
   while (current) {
+    if (current instanceof FiberRoot) {
+      return current.container;
+    }
     if (current.dom) return current.dom;
     current = current.parent;
   }
@@ -28,7 +31,7 @@ export function commitEffect(fiber: FiberNode) {
     }
     case EffectTag.REPLACE: {
       const neoDOM = createDOM(fiber.element);
-      oldDOM?.parentNode?.replaceChild(oldDOM, neoDOM);
+      oldDOM?.parentNode?.replaceChild(neoDOM, oldDOM);
       return neoDOM;
     }
     case EffectTag.APPEND: {

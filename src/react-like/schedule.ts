@@ -3,13 +3,13 @@ import {
   Element as FiberElement,
   FunctionComponent,
   isFunctionComponent,
+  FiberRoot,
 } from "./types";
 import { pickNextFiber, createFiberChildrenInterator } from "./fiberInterator";
 import { commitFiberTree, mountDOM } from "./commitFirberTree";
 import { setEffectTag } from "./elementEffect";
 
-let root: FiberNode | undefined = undefined;
-let container: HTMLElement | undefined = undefined;
+let root: FiberRoot | undefined = undefined;
 
 export let nextUnitOfWork: FiberNode | null = null;
 
@@ -19,7 +19,7 @@ function updateFunctionComponent(
   const element = fiber.element;
   const component = element.type;
 
-  console.log(fiber)
+  console.log(fiber);
   console.log("before", fiber.element.hooks);
   // 保持上次渲染时的hook状态
   fiber.element.hooks = fiber.alternate?.element.hooks;
@@ -54,10 +54,11 @@ function reconcileChildren(
   let current: FiberNode | undefined = undefined;
   // 根据子虚拟DOM节点创建子Fiber节点
   for (const element of childElements) {
+    const alternate = oldFiberChildren.next().value || null;
     const newFirber = new FiberNode({
       element,
       parent: fiber,
-      alternate: oldFiberChildren.next().value || null,
+      alternate,
     });
     // 兄弟节点之间通过sibling字段相连
     current && (current.sibling = newFirber);
@@ -88,7 +89,7 @@ function workLoop(deadline: IdleDeadline, callback?: () => void) {
     // 没有下一个需要处理的Fiber节点
     if (!nextUnitOfWork) {
       // 执行DOM修改
-      commitFiberTree(root, container);
+      commitFiberTree(root, root?.container);
       console.log("commit root", root);
       callback?.();
       return;
@@ -98,26 +99,24 @@ function workLoop(deadline: IdleDeadline, callback?: () => void) {
   requestIdleCallback((deadline) => workLoop(deadline, callback));
 }
 
-export function workLoopStart(
-  fiberRoot: FiberNode,
-  rootContainer: HTMLElement
-) {
+export function workLoopStart(fiberRoot: FiberRoot) {
   root = fiberRoot;
-  container = rootContainer;
   nextUnitOfWork = fiberRoot;
   // 开始执行
   requestIdleCallback((deadline) =>
     workLoop(deadline, () => {
-      mountDOM(fiberRoot, rootContainer);
+      mountDOM(fiberRoot, fiberRoot.container);
     })
   );
 }
 
 export function updateWorkLoop(fiber: FiberNode) {
-  nextUnitOfWork = new FiberNode({
-    element: fiber.element,
-    alternate: fiber,
-  });
-  // 开始执行
+  if (!root) return;
+  const node = {
+    ...root,
+    alternate: root,
+  };
+  root = node;
+  nextUnitOfWork = node; // 开始执行
   requestIdleCallback(workLoop);
 }

@@ -3,41 +3,55 @@ import { useState } from "./react-like/hooks";
 
 /** @jsxImportSource ./react-like */
 
-const Title = (props: any) => (
-  <h1 {...props} style={{ color: "red", marginBottom: "10px" }}>
-    {props.children}
-  </h1>
-);
+const Title = (props: any) => {
+  const [count, setCount] = useState(10);
+  return (
+    <h1
+      onClick={() => setCount(v => v + 1)}
+      {...props}
+      style={{ color: "red", marginBottom: "10px" }}
+    >
+      {props.children} {count}
+    </h1>
+  );
+};
 
 const Content = (
   <div>
-    <span>123</span>
+    <span>test content</span>
   </div>
 );
 
 const App = () => {
   const [count, setCount] = useState(10);
+  const [count2, setCount2] = useState(0);
 
   console.log("count", count);
   return (
-    <div onClick={() => setCount((v) => v + 1)}>
-      {
-        // <Title className="title">Hello world!</Title>
-        // <ul>
-        //   <li>a</li>
-        //   <li>b</li>
-        //   <li>c</li>
-        // </ul>
-      }
-      <h2>{count}</h2>
-      {
-
-      // <div className="App">
-      //   <h1>Hello CodeSandbox</h1>
-      //   <h2>Start editing to see some magic happen!</h2>
-      // </div>
-      // {Content}
-      }
+    <div>
+      <Title>title</Title>
+      {Content}
+      {count}
+      <br />
+      {count2}
+      <div>
+        <button
+          onClick={() => {
+            setCount((v) => v + 1);
+            setCount2((v) => v + 2);
+          }}
+        >
+          +
+        </button>
+        <button
+          onClick={() => {
+            setCount((v) => v - 1);
+            setCount2((v) => v - 2);
+          }}
+        >
+          -
+        </button>
+      </div>
     </div>
   );
 };

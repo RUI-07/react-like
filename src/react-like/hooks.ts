@@ -6,8 +6,8 @@ let hookIndex = 0;
 export function useState<T>(initial: T) {
   const currentNode = nextUnitOfWork;
   if (!currentNode) {
-    throw new Error('nextUnitOfWork has been null when useState is called')
-  };
+    throw new Error("nextUnitOfWork has been null when useState is called");
+  }
   if (!currentNode.element.hooks) {
     currentNode.element.hooks = [];
   }
@@ -18,18 +18,24 @@ export function useState<T>(initial: T) {
     hookIndex = 0;
   }
   if (!hooks[hookIndex]) {
-    hooks[hookIndex] = {
+    const index = hookIndex
+    hooks[index] = {
       state: initial,
-      setState: (setter) => {
-        const value = setter(initial);
-        hooks[hookIndex].state = value;
-        preUnitOfWork = null
+      setState(setter) {
+        const value = setter(this.state);
+        hooks[index].state = value;
+        preUnitOfWork = null;
         updateWorkLoop(currentNode);
       },
     };
+    const hook = hooks[index];
+    hook.setState = hook.setState.bind(hook);
   }
   const hook = hooks[hookIndex];
   preUnitOfWork = currentNode;
-  console.log('middle', currentNode.element.hooks)
-  return [hook.state, hook.setState] as [StateHook<T>['state'], StateHook<T>['setState']];
+  console.log("middle", currentNode.element.hooks);
+  return [hook.state, hook.setState] as [
+    StateHook<T>["state"],
+    StateHook<T>["setState"]
+  ];
 }
