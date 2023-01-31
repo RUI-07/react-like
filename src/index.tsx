@@ -1,5 +1,5 @@
 import { render } from "./react-like";
-import { useState } from "./react-like/hooks";
+import { useState, useEffect } from "./react-like/hooks";
 
 /** @jsxImportSource ./react-like */
 
@@ -7,7 +7,7 @@ const Title = (props: any) => {
   const [count, setCount] = useState(10);
   return (
     <h1
-      onClick={() => setCount(v => v + 1)}
+      onClick={() => setCount((v) => v + 1)}
       {...props}
       style={{ color: "red", marginBottom: "10px" }}
     >
@@ -22,36 +22,18 @@ const Content = (
   </div>
 );
 
-const App = () => {
+const Counter = () => {
   const [count, setCount] = useState(10);
-  const [count2, setCount2] = useState(0);
+  return <div onClick={() => setCount((v) => v + 1)}>{count}</div>;
+};
 
-  console.log("count", count);
+const App = () => {
+  const [show, setShow] = useState(false);
+
   return (
     <div>
-      <Title>title</Title>
-      {Content}
-      {count}
-      <br />
-      {count2}
-      <div>
-        <button
-          onClick={() => {
-            setCount((v) => v + 1);
-            setCount2((v) => v + 2);
-          }}
-        >
-          +
-        </button>
-        <button
-          onClick={() => {
-            setCount((v) => v - 1);
-            setCount2((v) => v - 2);
-          }}
-        >
-          -
-        </button>
-      </div>
+      {show && <Counter />}
+      <button onClick={() => setShow((v) => !v)}>click</button>
     </div>
   );
 };

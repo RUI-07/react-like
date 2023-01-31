@@ -10,14 +10,21 @@ export type ElementType =
 
 export interface StateHook<T = any> {
   state: T;
-  setState: (setter: (state: T) => void) => void;
+  setState: (setter: (state: T) => T) => void;
 }
+
+export interface EffectHook {
+  deps: any[];
+  onUnmount: void | (() => void | undefined);
+}
+
+export type Hook = StateHook | EffectHook;
 
 export class Element<T = ElementType, P = Record<any, any>> {
   type: T;
   props: P;
   children?: Element[];
-  hooks?: StateHook[];
+  hooks?: Hook[];
 
   constructor(params: { type: T; props: P; children?: Element["children"] }) {
     this.type = params.type;

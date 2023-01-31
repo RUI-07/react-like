@@ -18,17 +18,16 @@ function updateFunctionComponent(
 ) {
   const element = fiber.element;
   const component = element.type;
-
-  console.log(fiber);
-  console.log("before", fiber.element.hooks);
-  // 保持上次渲染时的hook状态
-  fiber.element.hooks = fiber.alternate?.element.hooks;
-
+  if (fiber.alternate) {
+    setEffectTag(fiber);
+  }
+  // 还是相同组件 保持上次渲染时的hook状态
+  if (component === fiber.alternate?.element.type) {
+    fiber.element.hooks = fiber.alternate?.element.hooks;
+  }
   const children = [
     component({ ...element.props, children: element.children }),
   ];
-  console.log("after", fiber.element.hooks);
-
   reconcileChildren(fiber, children);
   return fiber;
 }
@@ -55,6 +54,9 @@ function reconcileChildren(
   // 根据子虚拟DOM节点创建子Fiber节点
   for (const element of childElements) {
     const alternate = oldFiberChildren.next().value || null;
+    if (alternate) {
+      alternate.alternate = null;
+    }
     const newFirber = new FiberNode({
       element,
       parent: fiber,
@@ -90,7 +92,7 @@ function workLoop(deadline: IdleDeadline, callback?: () => void) {
     if (!nextUnitOfWork) {
       // 执行DOM修改
       commitFiberTree(root, root?.container);
-      console.log("commit root", root);
+      console.log("root", root);
       callback?.();
       return;
     }
@@ -110,13 +112,15 @@ export function workLoopStart(fiberRoot: FiberRoot) {
   );
 }
 
-export function updateWorkLoop(fiber: FiberNode) {
+export function updateWorkLoop(callBack?: () => void) {
   if (!root) return;
+  root.alternate = null;
   const node = {
     ...root,
     alternate: root,
   };
   root = node;
   nextUnitOfWork = node; // 开始执行
-  requestIdleCallback(workLoop);
+  // 开始执行
+  requestIdleCallback((deadline) => workLoop(deadline, callBack));
 }

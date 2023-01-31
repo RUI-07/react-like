@@ -1,4 +1,10 @@
-import { EffectTag, FiberNode, FiberRoot, PRIMITIVE_TYPE } from "./types";
+import {
+  EffectTag,
+  FiberNode,
+  FiberRoot,
+  isFunctionComponent,
+  PRIMITIVE_TYPE,
+} from "./types";
 import { createDOM, updateProps } from "./createDOM";
 import { shallowEqual } from "./util";
 
@@ -14,10 +20,20 @@ function getParentDOM(fiber: FiberNode) {
   return null;
 }
 
+function getOldDOM(fiber: FiberNode) {
+  const oldFiber = fiber.alternate;
+  if (!oldFiber) return null;
+  if (isFunctionComponent(oldFiber)) {
+    return oldFiber.child?.dom;
+  } else {
+    return oldFiber.dom;
+  }
+}
+
 // 根据effectTag决定新的DOM对象
 export function commitEffect(fiber: FiberNode) {
   const element = fiber.element;
-  const oldDOM = fiber.alternate?.dom || null;
+  const oldDOM = getOldDOM(fiber);
   const oldProps = fiber.alternate?.element.props || {};
   const effectTag = fiber.effectTag;
 
@@ -31,13 +47,17 @@ export function commitEffect(fiber: FiberNode) {
     }
     case EffectTag.REPLACE: {
       const neoDOM = createDOM(fiber.element);
-      oldDOM?.parentNode?.replaceChild(neoDOM, oldDOM);
+      if (neoDOM) {
+        oldDOM?.parentNode?.replaceChild(neoDOM, oldDOM);
+      } else {
+        oldDOM?.parentNode?.removeChild(oldDOM);
+      }
       return neoDOM;
     }
     case EffectTag.APPEND: {
       const neoDOM = createDOM(fiber.element);
       const parent = getParentDOM(fiber);
-      parent?.appendChild(neoDOM);
+      neoDOM && parent?.appendChild(neoDOM);
       return neoDOM;
     }
     default: {
@@ -52,15 +72,13 @@ export function setEffectTag(fiber: FiberNode) {
   const oldElement = oldFiber?.element;
   const element = fiber.element;
   let effectTag: EffectTag | undefined = undefined;
-  if (!oldFiber?.dom || !oldElement) {
+  if (!oldFiber || !oldElement) {
     effectTag = EffectTag.APPEND;
   } else if (oldElement.type !== element.type) {
     effectTag = EffectTag.REPLACE;
   } else if (shallowEqual(oldElement.props, element.props)) {
     effectTag = EffectTag.REUSE;
   } else {
-    // @TODO 优化PRIMITIVE_TYPE的处理
-    // PRIMITIVE_TYPE 简单处理每次更新都重新生成
     effectTag =
       element.type !== PRIMITIVE_TYPE ? EffectTag.UPDATE : EffectTag.REPLACE;
   }

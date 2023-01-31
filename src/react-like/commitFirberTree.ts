@@ -7,12 +7,11 @@ export function commitFiberTree(
   fiberRoot?: FiberNode,
   container: HTMLElement | null = null
 ) {
+  debugger
   if (!fiberRoot || !container) return;
   const fiberInterator = createfiberTreeInterator(fiberRoot);
 
   for (const fiber of fiberInterator) {
-    // 函数组件对应节点没有DOM不需要处理
-    if (isFunctionComponent(fiber)) continue;
     fiber.dom = commitEffect(fiber);
   }
 }
@@ -25,7 +24,7 @@ export function mountDOM(fiberRoot: FiberNode, container: HTMLElement) {
   for (const fiber of fiberInterator) {
     if (fiber.dom) {
       container.append(fiber.dom);
-      return
+      return;
     }
   }
 }

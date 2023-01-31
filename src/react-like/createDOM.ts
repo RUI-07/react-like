@@ -44,14 +44,16 @@ export function updateProps(
 }
 
 // 根据Element类型生成对应的HTML DOM Node
-export function createDOM(element: Element): Node {
+export function createDOM(element: Element): Node | null {
   const { type } = element;
   if (typeof type === "function") {
-    throw new Error('Can not create DOM for function component')
+    return null
   } else if (type === PRIMITIVE_TYPE) {
-    const textNode = document.createTextNode(
-      (element as PrimitiveElement).props.value
-    );
+    let value = element.props.value;
+    if (value === 'undefined' || value === 'null' || value === "false") {
+      value === "";
+    }
+    const textNode = document.createTextNode(value);
     return textNode;
   } else {
     const node = document.createElement(type);

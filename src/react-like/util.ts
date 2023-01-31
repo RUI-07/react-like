@@ -57,3 +57,11 @@ export function shallowEqual(
   }
   return true;
 }
+
+export function arrayShallowEqual(a: any[], b: any[]) {
+  if (a.length !== b.length) {
+    return false;
+  } else {
+    return a.every((item, index) => item === b[index]);
+  }
+}
